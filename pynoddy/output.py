@@ -14,7 +14,7 @@ class NoddyOutput(object):
 
     def __init__(self, output_name):
         """Noddy output analysis
-        
+
         **Arguments**:
             - *output_name* = string : (base) name of Noddy output files
         """
@@ -25,7 +25,7 @@ class NoddyOutput(object):
 
     def __add__(self, other):
         """Define addition as addition of grid block values
-        
+
         Note: Check first if model dimensions and settings are the same
         """
         # check dimensions
@@ -39,7 +39,7 @@ class NoddyOutput(object):
 
     def __sub__(self, other):
         """Define subtraction as subtraction of grid block values
-        
+
         Note: Check first if model dimensions and settings are the same
         """
         # check dimensions
@@ -53,12 +53,12 @@ class NoddyOutput(object):
 
     def __iadd__(self, x):
         """Augmented assignment addtition: add value to all grid blocks
-        
+
         **Arguments**:
             - *x*: can be either a numerical value (int, float, ...) *or* another
             NoddyOutput object! Note that, in both cases, the own block is updated
             and no new object is created (compare to overwritten addition operator!)
-        
+
         Note: This method is changing the object *in place*!
         """
         # if x is another pynoddy output object, then add values to own grid in place!
@@ -72,12 +72,12 @@ class NoddyOutput(object):
 
     def __isub__(self, x):
         """Augmented assignment addtition: add value(s) to all grid blocks
-        
+
         **Arguments**:
             - *x*: can be either a numerical value (int, float, ...) *or* another
             NoddyOutput object! Note that, in both cases, the own block is updated
             and no new object is created (compare to overwritten addition operator!)
-        
+
         Note: This method is changing the object *in place*!
         """
         # if x is another pynoddy output object, then add values to own grid in place!
@@ -238,13 +238,13 @@ class NoddyOutput(object):
 
     def determine_unit_volumes(self):
         """Determine volumes of geological units in the discretized block model
-        
+
         """
         #
         # Note: for the time being, the following implementation is extremely simple
         # and could be optimised, for example to test specifically for units defined
         # in stratigraphies, intrusions, etc.!
-        # 
+        #
         self.block_volume = self.delx * self.dely * self.delz
         self.unit_ids = np.unique(self.block)
         self.unit_volumes = np.empty(np.shape(self.unit_ids))
@@ -255,16 +255,16 @@ class NoddyOutput(object):
         '''
         Returns a grid of lines that define a grid on the specified surface. Note that this cannot
         handle layers that are repeated in the z direction...
-        
+
         **Arguments**:
          - *lithoID* - the top surface of this lithology will be calculated. If a list is passed,
                        the top surface of each lithology in the list is calculated.
-         
+
         **Keywords**:
          - *res* - the resolution to sample at. Default is 2 (ie. every second voxel is sampled).
-         
+
         **Returns**:
-         a tuple containing lists of tuples of x, y and z coordinate dictionaries and colour dictionaries, 
+         a tuple containing lists of tuples of x, y and z coordinate dictionaries and colour dictionaries,
          one containing the east-west lines and one the north-south lines: ((x,y,z,c),(x,y,z,c)). THe dictionary
          keys are the lithoID's passed in the lithoID parameter.
         '''
@@ -374,7 +374,7 @@ class NoddyOutput(object):
 
     def get_section_lines(self, direction='y', position='center', **kwds):
         """Create and returns a list of lines representing a section block through the model
-        
+
         **Arguments**:
             - *direction* = 'x', 'y', 'z' : coordinate direction of section plot (default: 'y')
             - *position* = int or 'center' : cell position of section as integer value
@@ -385,8 +385,8 @@ class NoddyOutput(object):
           [ dictionary of y coordinates, with lithology pairs as keys, separated by an underscore],
           [ dictionary of z coordinates, with lithology pairs as keys, separated by an underscore],
           [ dictionary of colours, with lithologies as keys])
-          
-        For example: get_section_lines()[0]["1_2"] returns a list of all the x coordinates from the 
+
+        For example: get_section_lines()[0]["1_2"] returns a list of all the x coordinates from the
         contact between lithology 1 and lithology 2. Note that the smaller lithology index always
         comes first in the code.
         """
@@ -466,12 +466,12 @@ class NoddyOutput(object):
 
     def get_section_voxels(self, direction='y', position='center', **kwds):
         """Create and returns section block through the model
-        
+
         **Arguments**:
             - *direction* = 'x', 'y', 'z' : coordinate direction of section plot (default: 'y')
             - *position* = int or 'center' : cell position of section as integer value
                 or identifier (default: 'center')
-              
+
         **Optional Keywords**:
             - *data* = np.array : data to plot, if different to block data itself
             - *litho_filter* = a list of lithologies to draw. All others will be ignored.
@@ -529,12 +529,12 @@ class NoddyOutput(object):
 
     def plot_section(self, direction='y', position='center', **kwds):
         """Create a section block through the model
-        
+
         **Arguments**:
             - *direction* = 'x', 'y', 'z' : coordinate direction of section plot (default: 'y')
             - *position* = int or 'center' : cell position of section as integer value
                 or identifier (default: 'center')
-        
+
         **Optional Keywords**:
             - *ax* = matplotlib.axis : append plot to axis (default: create new plot)
             - *figsize* = (x,y) : matplotlib figsize
@@ -596,13 +596,13 @@ class NoddyOutput(object):
 
         # plot section
         title = kwds.get("title", "Section in %s-direction, pos=%d" % (direction, cell_pos))
-                
+
         im = ax.imshow(section_slice, interpolation='nearest', aspect=ve, cmap=cmap_type, origin = 'lower')
-       
-        if colorbar and 'ax' not in kwds and False: #disable - color bar is broken
-#            cbar = plt.colorbar(im)
-#            _ = cbar
-#        
+
+        if colorbar and 'ax' not in kwds: # and False: #disable - color bar is broken
+            cbar = plt.colorbar(im)
+            _ = cbar
+#
             import matplotlib as mpl
             bounds = np.arange(np.min(section_slice), np.max(section_slice) + 1)
             cmap = plt.cm.jet
@@ -642,12 +642,12 @@ class NoddyOutput(object):
 
     def export_to_vtk(self, **kwds):
         """Export model to VTK
-        
+
         Export the geology blocks to VTK for visualisation of the entire 3-D model in an
         external VTK viewer, e.g. Paraview.
-        
+
         ..Note:: Requires pyevtk, available for free on: https://github.com/firedrakeproject/firedrake/tree/master/python/evtk
-        
+
         **Optional keywords**:
             - *vtk_filename* = string : filename of VTK file (default: output_name)
             - *data* = np.array : data array to export to VKT (default: entire block model)
@@ -676,7 +676,7 @@ def CalculatePlotStructure(modelfile, plot, noddy_path, includeGravityCalc=0,
     '''
     Function to take an input history file, calculate it, convert it to dxf,
     and then plot it in vtkplotter
-    
+
     Variables:
         modelfile: the history file (e.q. Model.his)
         plot: a reference to the vtkPlotter plot
@@ -695,7 +695,7 @@ def CalculatePlotStructure(modelfile, plot, noddy_path, includeGravityCalc=0,
 
     ###################################
     ### Calculate the PyNoddy model
-    ###################################    
+    ###################################
     # Assign the output name for the calculation
     output_name = outputfolder + 'vtkscratch'
 
@@ -713,8 +713,8 @@ def CalculatePlotStructure(modelfile, plot, noddy_path, includeGravityCalc=0,
 
     ###################################
     ### Convert the dxf surfaces to vtk
-    ###################################    
-    ## Now need to change the DXF file (mesh format) to VTK. 
+    ###################################
+    ## Now need to change the DXF file (mesh format) to VTK.
     ## This is slow unfortunately and I'm sure can be optimized
     start = time.time()
     points, cell_data, faceCounter = getDXF_parsed_structure(output_name)
@@ -723,8 +723,8 @@ def CalculatePlotStructure(modelfile, plot, noddy_path, includeGravityCalc=0,
 
     ###################################
     ### Convert parsed structure to vtk
-    ###################################    
-    ## Make a vtk file for each surface (option 1) 
+    ###################################
+    ## Make a vtk file for each surface (option 1)
     # or make a single vtk file for all surfaces (option 2)
     fileprefix = outputfolder + 'Surface'
     start = time.time()
@@ -735,7 +735,7 @@ def CalculatePlotStructure(modelfile, plot, noddy_path, includeGravityCalc=0,
 
     ###################################
     ### Add the lithology block to the plot
-    ###################################    
+    ###################################
     ## Now get the lithology data
     N1 = NoddyOutput(output_name)
 
@@ -746,7 +746,7 @@ def CalculatePlotStructure(modelfile, plot, noddy_path, includeGravityCalc=0,
 
     ###################################
     ### Add the calculated surfaces to the plot
-    ###################################    
+    ###################################
     # make sure each surface gets its own color
     colors = pl.cm.jet(np.linspace(0, 1, nSurfaces))
 
@@ -933,7 +933,7 @@ class NoddyGeophysics(object):
 
     def __init__(self, output_name):
         """Methods to read, analyse, and visualise calculated geophysical responses
-         
+
         .. note:: The geophysical responses have can be computed with a keyword in the
         function `compute_model`, e.g.:
         ``pynoddy.compute_model(history_name, output, type = 'GEOPHYSICS')``
@@ -974,10 +974,10 @@ class NoddyTopology(object):
         """Methods to read, analyse, and visualise calculated voxel topology
         .. note:: The voxel topology have can be computed with a keyword in the
         function `compute_model`, e.g.: ``pynoddy.compute_model(history_name, output, type = 'TOPOLOGY')``
-        
+
         **Arguments**
          - *noddy_model* = the name of the .his file or noddy output to run topology on.
-         
+
          **Optional Keywords**
           - *load_attributes* = True if nodes and edges in the topology network should be attributed with properties such as volume
                                and surface area and lithology colour. Default is True.
@@ -1167,7 +1167,7 @@ class NoddyTopology(object):
         #    params['colour'] = [ float(l[-3]) / 255.0, float(l[-2]) / 255.0, float(l[-1]) / 255.0 ]
 
         #    #store lithology parameters (using lithocode as key)
-        #    self.lithology_properties[params['code']] = params          
+        #    self.lithology_properties[params['code']] = params
 
         # load node locations from .vs file
         if (self.load_attributes):
@@ -1202,10 +1202,10 @@ class NoddyTopology(object):
     def filter_node_volumes(self, min_volume=50):
         '''
         Removes all nodes with volumes less than the specified size
-        
+
         **Arguments**:
          - *min_volume* = the threshold volume. Nodes with smaller volumes are deleted.
-         
+
         **Returns**
          - returns the number of deleted nodes
         '''
@@ -1223,7 +1223,7 @@ class NoddyTopology(object):
         Collapses all stratigraphic edges in this network to produce a network that only contains
         structurally bound rock volumes. Essentially this is a network built only with Topology codes
         and ignoring lithology
-        
+
         **Returns**
          - a new NoddyTopology object containing the collapsed graph. The original object is not modified.
         '''
@@ -1297,9 +1297,9 @@ class NoddyTopology(object):
 
     def collapse_structure(self, verbose=False):
         '''
-        Collapses all topology codes down to the last (most recent) difference. Information regarding specific model topology is 
+        Collapses all topology codes down to the last (most recent) difference. Information regarding specific model topology is
         generalised, eg. lithology A has a fault and stratigrappic contact with B (regardless of how many different faults are involved).
-                
+
         **Optional Arguments**:
          - *verbose* = True if this function should write to the print buffer. Default is False.
         **Returns**
@@ -1381,10 +1381,10 @@ class NoddyTopology(object):
     def jaccard_coefficient(self, G2):
         '''
         Calculates the Jaccard Coefficient (ratio between the intersection & union) of the graph representing this NOddyTopology and G2.
-        
+
         **Arguments**
          - *G2* = a valid NoddyTopology object or NetworkX graph that this topology is to be compared with
-         
+
         **Returns**
           - The jaccard_coefficient
         '''
@@ -1415,10 +1415,10 @@ class NoddyTopology(object):
     def is_unique(self, known):
         '''
         Returns True if the topology of this model is different (ie. forms a different network) to a list of models.
-        
+
         **Arguments**:
             -*known* = a list of valid NoddyTopology objects or NetworkX graphs to compare with.
-        
+
         **Returns**:
          - Returns true if this topology is unique, otherwise false
         '''
@@ -1431,10 +1431,10 @@ class NoddyTopology(object):
         '''
         Identical to is_unique, except that the index of the first match is returned if this matches, otherwise
         -1 is returned.
-        
+
         **Arguments**:
          -*known* = a list of valid NoddyTopology objects or NetworkX graphs to compare with.
-        
+
         **Returns**:
          - Returns the index of the first matching topology object, or -1
         '''
@@ -1452,7 +1452,7 @@ class NoddyTopology(object):
         Combines a list of topology networks into a weighted 'super-network'. This is designed for
         estimating the likelyhood of a given edge occuring using a series of networks generated in
         a Monte-Carlo type analysis.
-        
+
         **Arguments**
          - *topology_list* = A list of networkX graphs or NoddyTopology objects to build supernetwork from.
         **Returns**
@@ -1564,15 +1564,15 @@ class NoddyTopology(object):
     def calculate_unique_topologies(topology_list, **kwds):
         '''
         Calculates the number of unique topologies in a list of NoddyTopologies
-        
+
         **Arguments**:
          - *topology_list* = The list of NoddyTopologies to search through.
-         
+
         **Optional Keywords**:
          - *output* = A File or list to write cumulative observed topologies distribution. Default is None (nothing written).
-         - *ids* = A list to write the unique topology id's for each topology in the provided topology_list (in that 
+         - *ids* = A list to write the unique topology id's for each topology in the provided topology_list (in that
            order). Default is None.
-         - *frequency* = A list to write frequency counts to. 
+         - *frequency* = A list to write frequency counts to.
         **Returns**:
          - Returns a list of unique topologies.
        '''
@@ -1626,12 +1626,12 @@ class NoddyTopology(object):
     def calculate_overlap(self, G2):
         '''
         Calculates the overlap between this NoddyTopology and another NoddyTopology or networkX graph
-        
+
         **Arguments**
          - *G2* = a valid NoddyTopology object or NetworkX graph that this topology is to be compared with
-         
+
         **Returns**
-          - The number of overlapping edges 
+          - The number of overlapping edges
           - A list of these edges
         '''
 
@@ -1650,13 +1650,13 @@ class NoddyTopology(object):
     def calculate_difference(self, G2, data=False):
         '''
         Calculates the difference between this NoddyTopology and another NoddyTopology or networkX graph
-        
+
         **Arguments**
          - *G2* = a valid NoddyTopology object or NetworkX graph that this topology is to be compared with
-         
+
         **Returns**
           A tuple containing:
-          - The number of different edges 
+          - The number of different edges
           - a list of these edges
         '''
         # ensure G2 is a graph object
@@ -1696,13 +1696,13 @@ class NoddyTopology(object):
     def find_matching(self, known):
         '''
         Finds the first matching NoddyTopology (or NetworkX graph) in the specified list
-        
+
         **Arguments**:
             -*known* = a list of valid NoddyTopology objects or NetworkX graphs to compare with.
-        
+
         **Returns**:
          - Returns the first matching object (jaccard coefficient = 1), or otherwise None
-        
+
         '''
         for g1 in known:
             if self.jaccard_coefficient(g1) == 1.0:
@@ -1712,9 +1712,9 @@ class NoddyTopology(object):
     def write_summary_file(self, path, append=True):
         '''
         Writes summary information about this network to a file
-        
+
         **Optional Arguments**
-         - *append* = True if summary information should be appended to the file. If so the file is written as a csv spreadsheet. 
+         - *append* = True if summary information should be appended to the file. If so the file is written as a csv spreadsheet.
            Default is true. If False is passed, a single, detailed summary is written for this network.
         '''
         if append:  # write summary information in spreadsheet formant
@@ -1750,14 +1750,14 @@ class NoddyTopology(object):
         '''
         Draws an adjacency matrix representing the specified graph object. Equivalent to
         NoddyTopology.draw_matrix_image() but for a networkX graph object.
-        
+
         **Keywords**:
          - *strat* = A dictionary linking node names to stratigraphic heights and names. Should be as follows { node_name : (height,name) }.
          - *path* = The path to save this image to. If not provided, the image is drawn to the screen
          - *dpi* = The resolution to save this image. Default is 300
          - *size* = The size of the image to save (in inches). This value will be used as the width and the height
-         
-         
+
+
         '''
 
         try:
@@ -1971,22 +1971,22 @@ class NoddyTopology(object):
     def draw_adjacency_matrix(self, **kwds):
         '''
         Draws an adjacency matrix representing this topology object.
-        
+
         **Keywords**:
          - *path* = The path to save this image to. If not provided, the image is drawn to the screen
          - *dpi* = The resolution to save this image. Default is 300
          - *size* = The size of the image to save (in inches). This value will be used as the width and the height
-         
+
         '''
         NoddyTopology.draw_graph_matrix(self.graph, **kwds)
 
     def draw_difference_matrix(self, G2, **kwds):
         '''
         Draws an adjacency matrix containing the difference between this topology and the provided topology
-        
+
         **Arguments**:
          - *G2* = A different NoddyTopology or NetworkX Graph to compare to
-        
+
         **Optional Keywords**:
          - *strat* = A dictionary linking node names to stratigraphic heights and names. Should be as follows { node_name : (height,name) }.
          - *path* = The path to save this image to. If not provided, the image is drawn to the screen
@@ -2013,7 +2013,7 @@ class NoddyTopology(object):
         '''
         Draws an (adjacency) matrix representing this NoddyTopology object. Depreciated version (just
         loads the .g25 fil that topology opens).
-        
+
         **Arguments**
          - *outputname* = the path of the image to be written. If left as '' the image is written to the same directory as the basename.
         '''
@@ -2050,10 +2050,10 @@ class NoddyTopology(object):
     def draw_network_image(self, outputname="", **kwds):
         '''
         Draws a network diagram of this NoddyTopology to the specified image
-        
+
         **Arguments**:
          - *outputname* = the path of the image being written. If left as '' the image is written to the same directory as the basename.
-        
+
         **Optional Keywords**:
          - *dimension* = '2D' for a 2D network diagram or '3D' for a 3D network diagram. Default is '2D'.
          - *axis* = the axis to view on for 3D network diagrams
@@ -2153,13 +2153,13 @@ class NoddyTopology(object):
         '''
         Draws a network hive plot (see https://github.com/ericmjl/hiveplot).
         The axes of the hive are: node lithology, edge age & edge area.
-        
+
         ie. the top axis lists the nodes in stratigraphic order. The second axis
         lists edges in structural age & thrid axis lists edges by surface area.
-        
+
         Nodes are joined to edge-nodes by lines on the graph if they are topologically linked
         (ie. if an edge has that node as an end point).
-        
+
         **Optional Keywords**:
          - *path* = the path to save this figure
          - *dpi* = the resolution of the figure
@@ -2232,7 +2232,7 @@ class NoddyTopology(object):
         '''
         Draws the provided network with mayavi. This requires the Mayavi python library
         (mayavi.mlab)
-        
+
         **Optional Keywords**:
          - *node_size* = The size of the nodes. Default is 40.
          - *edge_thickness* = The thickness of the edges. Default is 4
@@ -2357,7 +2357,7 @@ class NoddyTopology(object):
         '''
         Draws this network with mayavi. This requires the Mayavi python library
         (mayavi.mlab)
-        
+
         **Optional Keywords**:
          - *node_size* = The size of the nodes. Default is 40.
          - *edge_thickness* = The thickness of the edges. Default is 4
@@ -2370,7 +2370,7 @@ class NoddyTopology(object):
     def draw_3d_network(self, **kwds):
         '''
         Draws a 3D network using matplotlib.
-        
+
         **Optional Keywords**:
          - *show* = If True, the 3D network is displayed immediatly on-screen in an interactive matplotlib viewer. Default is True.
          - *output* = If defined an image of the network is saved to this location.
