@@ -357,7 +357,8 @@ class NoddyHistory(object):
         for i, event in enumerate(self._raw_events[1:]):
             self._raw_events[i]["line_end"] = event["line_start"] - 1
         # now adjust for last event
-        self._raw_events[-1]['line_end'] = last_event_stop
+        if len(self._raw_events) > 0:
+            self._raw_events[-1]["line_end"] = last_event_stop
 
         self.events = {}  # idea: create events as dictionary so that it is easier
         # to swap order later!
@@ -401,8 +402,9 @@ class NoddyHistory(object):
             self.events[order] = ev  # store events sequentially
 
         # determine overall begin and end of the history events
-        self.all_events_begin = self._raw_events[0]['line_start']
-        self.all_events_end = self._raw_events[-1]['line_end']
+        if len(self._raw_events) > 0:
+            self.all_events_begin = self._raw_events[0]["line_start"]
+            self.all_events_end = self._raw_events[-1]["line_end"]
 
     def copy_events(self):
         """Create a copy of the current event state"""
