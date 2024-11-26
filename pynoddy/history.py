@@ -7,6 +7,7 @@ Created on 24/03/2014
 
 import time  # for header in model generation
 import numpy as np
+
 # import numpy as np
 # import matplotlib.pyplot as plt
 
@@ -18,17 +19,17 @@ class NoddyHistory(object):
 
     def __init__(self, history=None, **kwds):
         """Methods to analyse and change Noddy history files
-        
+
         **Arguments**:
             - *history* = string : Name of Noddy history file
-            
+
         **Optional Keywords**:
-            - *url* = url : link to history file on web (e.g. to download 
+            - *url* = url : link to history file on web (e.g. to download
             and open directly from Atlas of Structural Geophysics,
             http://virtualexplorer.com.au/special/noddyatlas/index.html
-            
+
             - *verbose* = True if this function should print output to the printstream. Default is False.
-            
+
         Note: if both a (local) history is given and a URL, the local
         file is opened!
         """
@@ -37,7 +38,7 @@ class NoddyHistory(object):
 
         if history is None:
             if "url" in kwds:
-                self.load_history_from_url(kwds['url'])
+                self.load_history_from_url(kwds["url"])
                 self.determine_events(verbose=vb)
             else:
                 # generate a new history
@@ -53,7 +54,7 @@ class NoddyHistory(object):
 
     def info(self, **kwds):
         """Print out model information
-        
+
         **Optional keywords**:
             - *events_only* = bool : only information on events
         """
@@ -61,7 +62,7 @@ class NoddyHistory(object):
 
     def get_info_string(self, **kwds):
         """Get model information as string
-        
+
         **Optional keywords**:
             - *events_only* = bool : only information on events
         """
@@ -71,47 +72,57 @@ class NoddyHistory(object):
 
         if not events_only:
             # First: check if all information available
-            if not hasattr(self, 'extent_x'): self.get_extent()
-            if not hasattr(self, 'origin_x'): self.get_origin()
-            if not hasattr(self, 'cube_size'): self.get_cube_size()
-            if not hasattr(self, 'filename'): self.get_filename()
-            if not hasattr(self, 'date_saved'): self.get_date_saved()
-            local_os += (60 * "*" + "\n\t\t\tModel Information\n" + 60 * "*")
+            if not hasattr(self, "extent_x"):
+                self.get_extent()
+            if not hasattr(self, "origin_x"):
+                self.get_origin()
+            if not hasattr(self, "cube_size"):
+                self.get_cube_size()
+            if not hasattr(self, "filename"):
+                self.get_filename()
+            if not hasattr(self, "date_saved"):
+                self.get_date_saved()
+            local_os += 60 * "*" + "\n\t\t\tModel Information\n" + 60 * "*"
             local_os += "\n\n"
         if self.n_events == 0:
             local_os += "The model does not yet contain any events\n"
         else:
-            local_os += ("This model consists of %d events:\n" % self.n_events)
+            local_os += "This model consists of %d events:\n" % self.n_events
             for k, ev in list(self.events.items()):
-                local_os += ("\t(%d) - %s\n" % (k, ev.event_type))
+                local_os += "\t(%d) - %s\n" % (k, ev.event_type)
         if not events_only:
             local_os += "The model extent is:\n"
-            local_os += ("\tx - %.1f m\n" % self.extent_x)
-            local_os += ("\ty - %.1f m\n" % self.extent_y)
-            local_os += ("\tz - %.1f m\n" % self.extent_z)
+            local_os += "\tx - %.1f m\n" % self.extent_x
+            local_os += "\ty - %.1f m\n" % self.extent_y
+            local_os += "\tz - %.1f m\n" % self.extent_z
 
-            local_os += 'Number of cells in each direction:\n'
-            local_os += ("\tnx = %d\n" % (self.extent_x / self.cube_size))
-            local_os += ("\tny = %d\n" % (self.extent_y / self.cube_size))
-            local_os += ("\tnz = %d\n" % (self.extent_z / self.cube_size))
+            local_os += "Number of cells in each direction:\n"
+            local_os += "\tnx = %d\n" % (self.extent_x / self.cube_size)
+            local_os += "\tny = %d\n" % (self.extent_y / self.cube_size)
+            local_os += "\tnz = %d\n" % (self.extent_z / self.cube_size)
 
-            local_os += ("The model origin is located at: \n\t(%.1f, %.1f, %.1f)\n" % (self.origin_x,
-                                                                                       self.origin_y,
-                                                                                       self.origin_z))
+            local_os += "The model origin is located at: \n\t(%.1f, %.1f, %.1f)\n" % (
+                self.origin_x,
+                self.origin_y,
+                self.origin_z,
+            )
 
-            local_os += ("The cubesize for model export is: \n\t%d m\n" % self.cube_size)
+            local_os += "The cubesize for model export is: \n\t%d m\n" % self.cube_size
             # and now some metadata
             local_os += "\n\n"
-            local_os += (60 * "*" + "\n\t\t\tMeta Data\n" + 60 * "*")
+            local_os += 60 * "*" + "\n\t\t\tMeta Data\n" + 60 * "*"
             local_os += "\n\n"
-            local_os += ("The filename of the model is:\n\t%s\n" % self.filename)
-            local_os += ("It was last saved (if origin was a history file!) at:\n\t%s\n" % self.date_saved)
+            local_os += "The filename of the model is:\n\t%s\n" % self.filename
+            local_os += (
+                "It was last saved (if origin was a history file!) at:\n\t%s\n"
+                % self.date_saved
+            )
 
         return local_os
 
     def get_origin(self):
         """Get coordinates of model origin and return and store in local variables
-        
+
         **Returns**: (origin_x, origin_y, origin_z)
         """
         # check if footer_lines exist (e.g. read in from file)
@@ -130,7 +141,7 @@ class NoddyHistory(object):
 
     def set_origin(self, origin_x, origin_y, origin_z):
         """Set coordinates of model origin and update local variables
-        
+
         **Arguments**:
             - *origin_x* = float : x-location of model origin
             - *origin_y* = float : y-location of model origin
@@ -157,7 +168,7 @@ class NoddyHistory(object):
 
     def get_extent(self):
         """Get model extent and return and store in local variables
-        
+
         **Returns**: (extent_x, extent_y, extent_z)
         """
         # check if footer_lines exist (e.g. read in from file)
@@ -176,7 +187,7 @@ class NoddyHistory(object):
 
     def set_extent(self, extent_x, extent_y, extent_z):
         """Set model extent and update local variables
-        
+
         **Arguments**:
             - *extent_x* = float : extent in x-direction
             - *extent_y* = float : extent in y-direction
@@ -203,22 +214,22 @@ class NoddyHistory(object):
 
     def get_drillhole_data(self, x, y, **kwds):
         """Get geology values along 1-D profile at position x,y with a 1 m resolution
-        
+
         The following steps are performed:
         1. creates a copy of the entire object,
-        2. sets values of origin, extent and geology cube size, 
-        3. saves model to a temporary file, 
+        2. sets values of origin, extent and geology cube size,
+        3. saves model to a temporary file,
         4. runs Noddy on that file
         5. opens and analyses output
         6. deletes temporary files
-        
+
         Note: this method only works if write access to current directory
         is enabled and noddy can be executed!
-        
+
         **Arguments**:
             - *x* = float: x-position of drillhole
             - *y* = float: y-position of drillhole
-        
+
         **Optional Arguments**:
             - *z_min* = float : minimum depth of drillhole (default: model range)
             - *z_max* = float : maximum depth of drillhole (default: model range)
@@ -232,6 +243,7 @@ class NoddyHistory(object):
         z_max = kwds.get("z_max", self.extent_z)
         # 1. create copy
         import copy
+
         tmp_his = copy.deepcopy(self)
         tmp_his.write_history("test.his")
         # 2. set values
@@ -249,42 +261,45 @@ class NoddyHistory(object):
         pynoddy.compute_model(tmp_his_file, tmp_out_file)
         # 5. open output
         tmp_out = pynoddy.output.NoddyOutput(tmp_out_file)
-        # 6. 
+        # 6.
         return tmp_out.block[0, 0, :]
 
     def load_history(self, history):
         """Load Noddy history
-        
+
         **Arguments**:
             - *history* = string : Name of Noddy history file
         """
-        self.history_lines = open(history, 'r').readlines()
+        self.history_lines = open(history, "r").readlines()
         # set flag for model loaded from file
         self._from_file = True
-        # get footer lines 
+        # get footer lines
         self.get_footer_lines()
 
     def load_history_from_url(self, url):
         """Directly load a Noddy history from a URL
-        
+
         This method is useful to load a model from the Structural Geophysics
         Atlas on the pages of the Virtual Explorer.
         See: http://tectonique.net/asg
-        
+
         **Arguments**:
             - *url* : url of history file
         """
         # test if python 2 or 3 are running for appropriate urllib functionality
         import sys
+
         if sys.version_info[0] < 3:
             import urllib2
+
             response = urllib2.urlopen(url)
             tmp_lines = response.read().split("\n")
         else:
             # from urllib import urlopen # , urllib.error, urllib.parse
             import urllib
+
             with urllib.request.urlopen(url) as f:
-                output = f.read().decode('utf-8')
+                output = f.read().decode("utf-8")
             # response = urllib.request.urlopen(url)
             tmp_lines = output.split("\n")
             # tmp_lines = response.read().decode("utf-8").split("\n")
@@ -295,48 +310,52 @@ class NoddyHistory(object):
             self.history_lines.append(line + "\n")
         # set flag for model loaded from URL
         self._from_url = True
-        # get footer lines 
+        # get footer lines
         self.get_footer_lines()
 
     def determine_model_stratigraphy(self):
         """Determine stratigraphy of entire model from all events"""
         self.model_stratigraphy = []
         for e in np.sort(list(self.events.keys())):
-            if self.events[e].event_type == 'STRATIGRAPHY':
+            if self.events[e].event_type == "STRATIGRAPHY":
                 self.model_stratigraphy += self.events[e].layer_names
-            if self.events[e].event_type == 'UNCONFORMITY':
+            if self.events[e].event_type == "UNCONFORMITY":
                 self.model_stratigraphy += self.events[e].layer_names
-            if self.events[e].event_type == 'DYKE':
+            if self.events[e].event_type == "DYKE":
                 self.model_stratigraphy += self.events[e].name
-            if self.events[e].event_type == 'PLUG':
+            if self.events[e].event_type == "PLUG":
                 self.model_stratigraphy += self.events[e].name
 
     def determine_events(self, **kwds):
         """Determine events and save line numbers
-        
-        .. note:: Parsing of the history file is based on a fixed Noddy output order. 
+
+        .. note:: Parsing of the history file is based on a fixed Noddy output order.
                   If this is, for some reason (e.g. in a changed version of Noddy) not the case, then
                   this parsing might fail!
-        
+
           **Optional Keywords**:
            - verbose = True if this function is should write to the print bufffer, otherwise False. Default is False.
         """
 
-        vb = kwds.get('verbose', False)
+        vb = kwds.get("verbose", False)
 
         self._raw_events = []
         for i, line in enumerate(self.history_lines):
             if "No of Events" in line:
                 self.n_events = int(line.split("=")[1])
             elif "Event #" in line:
-                event = {'type': line.split('=')[1].rstrip(), 'num': int(line[7:9]), 'line_start': i}
+                event = {
+                    "type": line.split("=")[1].rstrip(),
+                    "num": int(line[7:9]),
+                    "line_start": i,
+                }
                 self._raw_events.append(event)
             # finally: if the definition for BlockOptions starts, the event definition is over
             elif "BlockOptions" in line:
                 last_event_stop = i - 2
         # now: find the line ends for the single event blocks
         for i, event in enumerate(self._raw_events[1:]):
-            self._raw_events[i]['line_end'] = event['line_start'] - 1
+            self._raw_events[i]["line_end"] = event["line_start"] - 1
         # now adjust for last event
         self._raw_events[-1]['line_end'] = last_event_stop
 
@@ -347,35 +366,38 @@ class NoddyHistory(object):
             print("Loaded model with the following events:")
 
         for e in self._raw_events:
-            event_lines = self.history_lines[e['line_start']:e['line_end'] + 1]
+            event_lines = self.history_lines[e["line_start"] : e["line_end"] + 1]
 
             if vb:
-                print(e['type'])
+                print(e["type"])
 
-            if 'FAULT' in e['type']:
+            if "FAULT" in e["type"]:
                 ev = events.Fault(lines=event_lines)
-            elif 'SHEAR_ZONE' in e['type']:
+            elif "SHEAR_ZONE" in e["type"]:
                 ev = events.Shear(lines=event_lines)
-            elif 'FOLD' in e['type']:
+            elif "FOLD" in e["type"]:
                 ev = events.Fold(lines=event_lines)
-            elif 'UNCONFORMITY' in e['type']:
+            elif "UNCONFORMITY" in e["type"]:
                 ev = events.Unconformity(lines=event_lines)
-            elif 'STRATIGRAPHY' in e['type']:
+            elif "STRATIGRAPHY" in e["type"]:
                 # event_lines = event_lines[:-1]
                 ev = events.Stratigraphy(lines=event_lines)
-            elif 'TILT' in e['type']:  # AK
+            elif "TILT" in e["type"]:  # AK
                 ev = events.Tilt(lines=event_lines)
-            elif 'DYKE' in e['type']:
+            elif "DYKE" in e["type"]:
                 ev = events.Dyke(lines=event_lines)
-            elif 'PLUG' in e['type']:
+            elif "PLUG" in e["type"]:
                 ev = events.Plug(lines=event_lines)
-            elif 'STRAIN' in e['type']:
+            elif "STRAIN" in e["type"]:
                 ev = events.Strain(lines=event_lines)
             else:
-                print("Warning: event of type %s has not been implemented in PyNoddy yet" % e['type'])
+                print(
+                    "Warning: event of type %s has not been implemented in PyNoddy yet"
+                    % e["type"]
+                )
                 continue
             # now set shared attributes (those defined in superclass Event)
-            order = e['num']  # retrieve event number
+            order = e["num"]  # retrieve event number
             self.events[order] = ev  # store events sequentially
 
         # determine overall begin and end of the history events
@@ -385,21 +407,23 @@ class NoddyHistory(object):
     def copy_events(self):
         """Create a copy of the current event state"""
         import copy
+
         return copy.deepcopy(self.events)
 
     def get_cube_size(self, **kwds):
         """Determine cube size for model export
-           **Optional Args**
-            -type: choose geology or geophysics cube size to return. Should be either 'Geology' (default) or 'Geophysics'
+        **Optional Args**
+         -type: choose geology or geophysics cube size to return. Should be either 'Geology' (default) or 'Geophysics'
         """
 
         # get args
-        sim_type = kwds.get("type", 'Geophysics')  # everything seems to use this
-        cube_string = 'Geophysics Cube Size'  # get geology cube size by default
-        if 'Geology' in sim_type:
-            cube_string = 'Geology Cube Size'  # instead get geology cube size
+        sim_type = kwds.get("type", "Geophysics")  # everything seems to use this
+        cube_string = "Geophysics Cube Size"  # get geology cube size by default
+        if "Geology" in sim_type:
+            cube_string = "Geology Cube Size"  # instead get geology cube size
             print(
-                "Warning: pynoddy uses the geophysics cube size for all calculations... changing the geology cube size will have no effect internally.")
+                "Warning: pynoddy uses the geophysics cube size for all calculations... changing the geology cube size will have no effect internally."
+            )
 
             # check if footer exists, if not: create from template
         if not hasattr(self, "footer_lines"):
@@ -407,20 +431,20 @@ class NoddyHistory(object):
 
         for line in self.footer_lines:
             if cube_string in line:
-                self.cube_size = float(line.split('=')[1].rstrip())
+                self.cube_size = float(line.split("=")[1].rstrip())
                 return self.cube_size
 
     def get_filename(self):
         """Determine model filename from history file/ header"""
-        self.filename = self.history_lines[0].split('=')[1].rstrip()
+        self.filename = self.history_lines[0].split("=")[1].rstrip()
 
     def get_date_saved(self):
         """Determine the last savepoint of the file"""
-        self.date_saved = self.history_lines[1].split('=')[1].rstrip()
+        self.date_saved = self.history_lines[1].split("=")[1].rstrip()
 
     def change_cube_size(self, cube_size):
         """Change the model cube size (isotropic)
-        
+
         **Arguments**:
             - *cube_size* = float : new model cube size
         """
@@ -433,14 +457,14 @@ class NoddyHistory(object):
         #        lines_new = self.history_lines[:]
         for i, line in enumerate(self.footer_lines):
             if "Geophysics Cube Size" in line:  # correct line, make change
-                l = line.split('=')
-                l_new = '%7.2f\r\n' % cube_size
+                l = line.split("=")
+                l_new = "%7.2f\r\n" % cube_size
                 line_new = l[0] + "=" + l_new
                 self.footer_lines[i] = line_new
 
             if "Geology Cube Size" in line:  # change geology cube size also
-                l = line.split('=')
-                l_new = '%7.2f\r\n' % cube_size
+                l = line.split("=")
+                l_new = "%7.2f\r\n" % cube_size
                 line_new = l[0] + "=" + l_new
                 self.footer_lines[i] = line_new
                 # assign changed lines back to object
@@ -448,7 +472,7 @@ class NoddyHistory(object):
 
     def get_footer_lines(self):
         """Get the footer lines from self.history_lines
-        
+
         The footer contains everything below events (all settings, etc.)"""
         # get id of footer from history lines
         for i, line in enumerate(self.history_lines):
@@ -465,7 +489,7 @@ class NoddyHistory(object):
 
     def swap_events(self, event_num_1, event_num_2):
         """Swap two geological events in the timeline
-        
+
         **Arguments**:
             - *event_num_1/2* = int : number of events to be swapped ("order")
         """
@@ -477,7 +501,7 @@ class NoddyHistory(object):
 
     def reorder_events(self, reorder_dict):
         """Reorder events accoring to assignment in reorder_dict
-        
+
         **Arguments**:
             - *reorder_dict* = dict : for example {1 : 2, 2 : 3, 3 : 1}
         """
@@ -506,9 +530,7 @@ class NoddyHistory(object):
         #
 
     def create_new_history(self):
-        """Methods to create a Noddy model
-        
-        """
+        """Methods to create a Noddy model"""
         # set event counter
         self.event_counter = 0
         self.all_events_begin = 7  # default after header
@@ -524,7 +546,7 @@ class NoddyHistory(object):
 
     def add_event(self, event_type, event_options, **kwds):
         """Add an event type to history
-        
+
         **Arguments**:
             - *event_type* = string : type of event, legal options to date are:
             'stratigraphy', 'fault', 'fold', 'unconformity'
@@ -535,29 +557,28 @@ class NoddyHistory(object):
 
         event_num = kwds.get("event_num", self.get_ev_counter())
 
-        if event_type == 'stratigraphy':
+        if event_type == "stratigraphy":
             ev = self._create_stratigraphy(event_options)
-            ev.event_type = 'STRATIGRAPHY'
+            ev.event_type = "STRATIGRAPHY"
 
-        elif event_type == 'fault':
+        elif event_type == "fault":
             ev = self._create_fault(event_options)
-            ev.event_type = 'FAULT'
+            ev.event_type = "FAULT"
 
-        elif event_type == 'tilt':  # AK
+        elif event_type == "tilt":  # AK
             ev = self._create_tilt(event_options)
-            ev.event_type = 'TILT'
+            ev.event_type = "TILT"
 
-        elif event_type == 'unconformity':  # AK
+        elif event_type == "unconformity":  # AK
             ev = self._create_unconformity(event_options)
-            ev.event_type = 'UNCONFORMITY'
+            ev.event_type = "UNCONFORMITY"
 
-        elif event_type == 'fold':
+        elif event_type == "fold":
             ev = self._create_fold(event_options)
-            ev.event_type = 'FOLD'
-
+            ev.event_type = "FOLD"
 
         else:
-            raise NameError('Event type %s not (yet) implemented' % event_type)
+            raise NameError("Event type %s not (yet) implemented" % event_type)
 
         ev.set_event_number(event_num)
         self.events[event_num] = ev
@@ -566,30 +587,40 @@ class NoddyHistory(object):
         self.all_events_end = self.all_events_end + len(ev.event_lines)
 
         # add event to history lines, as well (for consistency with other methods)
-        self.history_lines[:self.all_events_begin] + \
-        ev.event_lines + \
-        self.history_lines[self.all_events_end:]
+        (
+            self.history_lines[: self.all_events_begin]
+            + ev.event_lines
+            + self.history_lines[self.all_events_end :]
+        )
 
     def _create_header(self):
         """Create model header, include actual date"""
         t = time.localtime()  # get current time
-        time_string = "%d/%d/%d %d:%d:%d" % (t.tm_mday,
-                                             t.tm_mon,
-                                             t.tm_year,
-                                             t.tm_hour,
-                                             t.tm_min,
-                                             t.tm_sec)
-        self.header_lines = """#Filename = """ + self.filename + """ 
-#Date Saved = """ + time_string + """
+        time_string = "%d/%d/%d %d:%d:%d" % (
+            t.tm_mday,
+            t.tm_mon,
+            t.tm_year,
+            t.tm_hour,
+            t.tm_min,
+            t.tm_sec,
+        )
+        self.header_lines = (
+            """#Filename = """
+            + self.filename
+            + """
+#Date Saved = """
+            + time_string
+            + """
 FileType = 111
 Version = 7.03
 
 """
+        )
 
     @staticmethod
     def _create_stratigraphy(event_options):
         """Create a stratigraphy event
-        
+
         **Arguments**:
             - *event_options* = list : list of required and optional settings for event
             Options are:
@@ -599,15 +630,15 @@ Version = 7.03
         """
         ev = events.Stratigraphy()
         tmp_lines = [""]
-        tmp_lines.append("\tNum Layers\t= %d" % event_options['num_layers'])
-        for i in range(event_options['num_layers']):
+        tmp_lines.append("\tNum Layers\t= %d" % event_options["num_layers"])
+        for i in range(event_options["num_layers"]):
             """Add stratigraphy layers"""
-            layer_name = event_options['layer_names'][i]
+            layer_name = event_options["layer_names"][i]
             try:
-                density = event_options['density'][i]
+                density = event_options["density"][i]
             except KeyError:
                 density = 4.0
-            cum_thickness = np.cumsum(event_options['layer_thickness'])
+            cum_thickness = np.cumsum(event_options["layer_thickness"])
             layer_lines = _Templates().strati_layer
             # now replace required variables
             layer_lines = layer_lines.replace("$NAME$", layer_name)
@@ -626,12 +657,12 @@ Version = 7.03
         for line in tmp_lines:
             tmp_lines_list.append(line + "\n")
         ev.set_event_lines(tmp_lines_list)
-        ev.num_layers = event_options['num_layers']
+        ev.num_layers = event_options["num_layers"]
         return ev
 
     def _create_fault(self, event_options):
         """Create a fault event
-        
+
         **Arguments**:
             - *event_options* = list : list of required and optional settings for event;
             Options are:
@@ -655,27 +686,47 @@ Version = 7.03
         tmp_lines = [""]
         fault_lines = _Templates.fault
         # substitute text with according values
-        fault_lines = fault_lines.replace("$NAME$", event_options['name'])
-        fault_lines = fault_lines.replace("$POS_X$", "%.1f" % event_options['pos'][0])
-        fault_lines = fault_lines.replace("$POS_Y$", "%.1f" % event_options['pos'][1])
-        if event_options['pos'] == 'top':
+        fault_lines = fault_lines.replace("$NAME$", event_options["name"])
+        fault_lines = fault_lines.replace("$POS_X$", "%.1f" % event_options["pos"][0])
+        fault_lines = fault_lines.replace("$POS_Y$", "%.1f" % event_options["pos"][1])
+        if event_options["pos"] == "top":
             # recalculate z-value to be at top of model
             z = self.zmax
             fault_lines = fault_lines.replace("$POS_Z$", "%.1f" % z)
         else:
-            fault_lines = fault_lines.replace("$POS_Z$", "%.1f" % event_options['pos'][2])
-        fault_lines = fault_lines.replace("$DIP_DIR$", "%.1f" % event_options['dip_dir'])
-        fault_lines = fault_lines.replace("$DIP$", "%.1f" % event_options['dip'])
-        fault_lines = fault_lines.replace("$SLIP$", "%.1f" % event_options['slip'])
+            fault_lines = fault_lines.replace(
+                "$POS_Z$", "%.1f" % event_options["pos"][2]
+            )
+        fault_lines = fault_lines.replace(
+            "$DIP_DIR$", "%.1f" % event_options["dip_dir"]
+        )
+        fault_lines = fault_lines.replace("$DIP$", "%.1f" % event_options["dip"])
+        fault_lines = fault_lines.replace("$SLIP$", "%.1f" % event_options["slip"])
 
-        fault_lines = fault_lines.replace("$MOVEMENT$", "%s" % event_options.get('movement', 'Hanging Wall'))
-        fault_lines = fault_lines.replace("$GEOMETRY$", "%s" % event_options.get('geometry', 'Translation'))
-        fault_lines = fault_lines.replace("$ROTATION$", "%.1f" % event_options.get('rotation', 30.0))
-        fault_lines = fault_lines.replace("$AMPLITUDE$", "%.1f" % event_options.get('amplitude', 2000.0))
-        fault_lines = fault_lines.replace("$RADIUS$", "%.1f" % event_options.get('radius', 1000.0))
-        fault_lines = fault_lines.replace("$XAXIS$", "%.1f" % event_options.get('xaxis', 2000.0))
-        fault_lines = fault_lines.replace("$YAXIS$", "%.1f" % event_options.get('yaxis', 2000.0))
-        fault_lines = fault_lines.replace("$ZAXIS$", "%.1f" % event_options.get('zaxis', 2000.0))
+        fault_lines = fault_lines.replace(
+            "$MOVEMENT$", "%s" % event_options.get("movement", "Hanging Wall")
+        )
+        fault_lines = fault_lines.replace(
+            "$GEOMETRY$", "%s" % event_options.get("geometry", "Translation")
+        )
+        fault_lines = fault_lines.replace(
+            "$ROTATION$", "%.1f" % event_options.get("rotation", 30.0)
+        )
+        fault_lines = fault_lines.replace(
+            "$AMPLITUDE$", "%.1f" % event_options.get("amplitude", 2000.0)
+        )
+        fault_lines = fault_lines.replace(
+            "$RADIUS$", "%.1f" % event_options.get("radius", 1000.0)
+        )
+        fault_lines = fault_lines.replace(
+            "$XAXIS$", "%.1f" % event_options.get("xaxis", 2000.0)
+        )
+        fault_lines = fault_lines.replace(
+            "$YAXIS$", "%.1f" % event_options.get("yaxis", 2000.0)
+        )
+        fault_lines = fault_lines.replace(
+            "$ZAXIS$", "%.1f" % event_options.get("zaxis", 2000.0)
+        )
         # $GEOMETRY$ Translation
 
         # now split lines and add as list entries to event lines
@@ -710,20 +761,30 @@ Version = 7.03
         tmp_lines = [""]
         fault_lines = _Templates.fold
         # substitute text with according values
-        fault_lines = fault_lines.replace("$NAME$", event_options['name'])
-        fault_lines = fault_lines.replace("$POS_X$", "%.1f" % event_options['pos'][0])
-        fault_lines = fault_lines.replace("$POS_Y$", "%.1f" % event_options['pos'][1])
-        if event_options['pos'] == 'top':
+        fault_lines = fault_lines.replace("$NAME$", event_options["name"])
+        fault_lines = fault_lines.replace("$POS_X$", "%.1f" % event_options["pos"][0])
+        fault_lines = fault_lines.replace("$POS_Y$", "%.1f" % event_options["pos"][1])
+        if event_options["pos"] == "top":
             # recalculate z-value to be at top of model
             z = self.zmax
             fault_lines = fault_lines.replace("$POS_Z$", "%.1f" % z)
         else:
-            fault_lines = fault_lines.replace("$POS_Z$", "%.1f" % event_options['pos'][2])
-        fault_lines = fault_lines.replace("$WAVELENGTH$", "%.1f" % event_options['wavelength'])
-        fault_lines = fault_lines.replace("$AMPLITUDE$", "%.1f" % event_options['amplitude'])
+            fault_lines = fault_lines.replace(
+                "$POS_Z$", "%.1f" % event_options["pos"][2]
+            )
+        fault_lines = fault_lines.replace(
+            "$WAVELENGTH$", "%.1f" % event_options["wavelength"]
+        )
+        fault_lines = fault_lines.replace(
+            "$AMPLITUDE$", "%.1f" % event_options["amplitude"]
+        )
         # fault_lines = fault_lines.replace("$SLIP$", "%.1f" % event_options['slip'])
-        fault_lines = fault_lines.replace("$DIP_DIR$", "%.1f" % event_options.get('dip_dir', 90.0))
-        fault_lines = fault_lines.replace("$DIP$", "%.1f" % event_options.get('dip', 90.0))
+        fault_lines = fault_lines.replace(
+            "$DIP_DIR$", "%.1f" % event_options.get("dip_dir", 90.0)
+        )
+        fault_lines = fault_lines.replace(
+            "$DIP$", "%.1f" % event_options.get("dip", 90.0)
+        )
 
         # now split lines and add as list entries to event lines
         # event lines are defined in list:
@@ -738,10 +799,10 @@ Version = 7.03
         ev.set_event_lines(tmp_lines_list)
         return ev
 
-    # AK 2014-10    
+    # AK 2014-10
     def _create_tilt(self, event_options):
         """Create a tilt event
-        
+
         **Arguments**:
             - *event_options* = list : list of required and optional settings for event;
             Options are:
@@ -757,18 +818,22 @@ Version = 7.03
         tmp_lines = [""]
         tilt_lines = _Templates.tilt
         # substitute text with according values
-        tilt_lines = tilt_lines.replace("$NAME$", event_options['name'])
-        tilt_lines = tilt_lines.replace("$POS_X$", "%.1f" % event_options['pos'][0])
-        tilt_lines = tilt_lines.replace("$POS_Y$", "%.1f" % event_options['pos'][1])
-        if event_options['pos'] == 'top':
+        tilt_lines = tilt_lines.replace("$NAME$", event_options["name"])
+        tilt_lines = tilt_lines.replace("$POS_X$", "%.1f" % event_options["pos"][0])
+        tilt_lines = tilt_lines.replace("$POS_Y$", "%.1f" % event_options["pos"][1])
+        if event_options["pos"] == "top":
             # recalculate z-value to be at top of model
             z = self.zmax
             tilt_lines = tilt_lines.replace("$POS_Z$", "%.1f" % z)
         else:
-            tilt_lines = tilt_lines.replace("$POS_Z$", "%.1f" % event_options['pos'][2])
-        tilt_lines = tilt_lines.replace("$ROTATION$", "%.1f" % event_options['rotation'])
-        tilt_lines = tilt_lines.replace("$PLUNGE_DIRECTION$", "%.1f" % event_options['plunge_direction'])
-        tilt_lines = tilt_lines.replace("$PLUNGE$", "%.1f" % event_options['plunge'])
+            tilt_lines = tilt_lines.replace("$POS_Z$", "%.1f" % event_options["pos"][2])
+        tilt_lines = tilt_lines.replace(
+            "$ROTATION$", "%.1f" % event_options["rotation"]
+        )
+        tilt_lines = tilt_lines.replace(
+            "$PLUNGE_DIRECTION$", "%.1f" % event_options["plunge_direction"]
+        )
+        tilt_lines = tilt_lines.replace("$PLUNGE$", "%.1f" % event_options["plunge"])
 
         # now split lines and add as list entries to event lines
         # event lines are defined in list:
@@ -783,10 +848,10 @@ Version = 7.03
         ev.set_event_lines(tmp_lines_list)
         return ev
 
-    # AK 2014-10    
+    # AK 2014-10
     def _create_unconformity(self, event_options):
         """Create a unconformity event
-        
+
         **Arguments**:
             - *event_options* = list : list of required and optional settings for event;
             Options are:
@@ -802,28 +867,38 @@ Version = 7.03
         tmp_lines = [""]
         unconformity_lines = _Templates.unconformity
         # substitute text with according values
-        unconformity_lines = unconformity_lines.replace("$NAME$", event_options['name'])
-        unconformity_lines = unconformity_lines.replace("$POS_X$", "%.1f" % event_options['pos'][0])
-        unconformity_lines = unconformity_lines.replace("$POS_Y$", "%.1f" % event_options['pos'][1])
-        if event_options['pos'] == 'top':
+        unconformity_lines = unconformity_lines.replace("$NAME$", event_options["name"])
+        unconformity_lines = unconformity_lines.replace(
+            "$POS_X$", "%.1f" % event_options["pos"][0]
+        )
+        unconformity_lines = unconformity_lines.replace(
+            "$POS_Y$", "%.1f" % event_options["pos"][1]
+        )
+        if event_options["pos"] == "top":
             # recalculate z-value to be at top of model
             z = self.zmax
             unconformity_lines = unconformity_lines.replace("$POS_Z$", "%.1f" % z)
         else:
-            unconformity_lines = unconformity_lines.replace("$POS_Z$", "%.1f" % event_options['pos'][2])
-        unconformity_lines = unconformity_lines.replace("$DIP_DIRECTION$", "%.1f" % event_options['dip_direction'])
-        unconformity_lines = unconformity_lines.replace("$DIP$", "%.1f" % event_options['dip'])
+            unconformity_lines = unconformity_lines.replace(
+                "$POS_Z$", "%.1f" % event_options["pos"][2]
+            )
+        unconformity_lines = unconformity_lines.replace(
+            "$DIP_DIRECTION$", "%.1f" % event_options["dip_direction"]
+        )
+        unconformity_lines = unconformity_lines.replace(
+            "$DIP$", "%.1f" % event_options["dip"]
+        )
 
         # split lines and add to event lines list:
         for unconformity_line in unconformity_lines.split("\n"):
             tmp_lines.append(unconformity_line)
 
         # unconformity has a stratigraphy block
-        tmp_lines.append("\tNum Layers\t= %d" % event_options['num_layers'])
-        for i in range(event_options['num_layers']):
+        tmp_lines.append("\tNum Layers\t= %d" % event_options["num_layers"])
+        for i in range(event_options["num_layers"]):
             """Add stratigraphy layers"""
-            layer_name = event_options['layer_names'][i]
-            cum_thickness = np.cumsum(event_options['layer_thickness'])
+            layer_name = event_options["layer_names"][i]
+            cum_thickness = np.cumsum(event_options["layer_thickness"])
             layer_lines = _Templates().strati_layer
             # now replace required variables
             layer_lines = layer_lines.replace("$NAME$", layer_name)
@@ -834,7 +909,7 @@ Version = 7.03
                 tmp_lines.append(layer_line)
 
         # append event name
-        tmp_lines.append("""\tName\t= %s""" % event_options.get('name', 'Unconf'))
+        tmp_lines.append("""\tName\t= %s""" % event_options.get("name", "Unconf"))
 
         tmp_lines_list = []
         for line in tmp_lines:
@@ -844,10 +919,10 @@ Version = 7.03
 
     def set_event_params(self, params_dict):
         """set multiple event parameters according to settings in params_dict
-        
+
         **Arguments**:
             - *params_dict* = dictionary : entries to set (multiple) parameters
-            
+
         """
         for key, sub_dict in list(params_dict.items()):
             for sub_key, val in list(sub_dict.items()):
@@ -855,30 +930,36 @@ Version = 7.03
 
     def change_event_params(self, changes_dict):
         """Change multiple event parameters according to settings in changes_dict
-        
+
         **Arguments**:
             - *changes_dict* = dictionary : entries define relative changes for (multiple) parameters
-            
+
         Per default, the values in the dictionary are added to the event parameters.
         """
         # print changes_dict
         for key, sub_dict in list(changes_dict.items()):  # loop through events (key)
-            for sub_key, val in list(sub_dict.items()):  # loop through parameters being changed (sub_key)
-                if isinstance(sub_key, int):  # in this case, it is the layer id of a stratigraphic layer!
-                    self.events[key].layers[sub_key].properties[val['property']] += val['val']
+            for sub_key, val in list(
+                sub_dict.items()
+            ):  # loop through parameters being changed (sub_key)
+                if isinstance(
+                    sub_key, int
+                ):  # in this case, it is the layer id of a stratigraphic layer!
+                    self.events[key].layers[sub_key].properties[val["property"]] += val[
+                        "val"
+                    ]
                 else:
                     self.events[key].properties[sub_key] += val
 
     def get_event_params(self, event_number):
-        '''
+        """
         Returns the parameter dictionary for a given event.
-        
+
         **Arguments**:
          - *event_number* = the event to get a parameter for (integer)
-         
+
          **Returns**
           - Returns the parameter dictionary for the requested event
-        '''
+        """
         return self.events[event_number].properties
 
     def get_event_param(self, event_number, name):
@@ -901,12 +982,12 @@ Version = 7.03
 
     def write_history(self, filename):
         """Write history to new file
-        
+
         **Arguments**:
             - *filename* = string : filename of new history file
-            
+
         .. hint:: Just love it how easy it is to 'write history' with Noddy ;-)
-        
+
         """
         # before saving: update all event properties (in case changes were made)
         self.update_all_event_properties()
@@ -938,10 +1019,10 @@ Version = 7.03
         for line in self.footer_lines:
             history_lines.append(line)
 
-        f = open(filename, 'w')
+        f = open(filename, "w")
         for i, line in enumerate(history_lines):
             # add empty line before "BlockOptions", if not there:
-            if ('BlockOptions' in line) and (history_lines[i - 1] != "\n"):
+            if ("BlockOptions" in line) and (history_lines[i - 1] != "\n"):
                 f.write("\n")
 
             # write line
@@ -958,9 +1039,15 @@ Version = 7.03
 # Two extra PyNoddy functions for creating history files based on fault traces
 # ===============================================================================
 
-def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
-                             RefineFault=True, RefineDistance=350,
-                             interpType='linear'):
+
+def setUpFaultRepresentation(
+    Data,
+    SlipParam=0.04,
+    xy_origin=[0, 0, 0],
+    RefineFault=True,
+    RefineDistance=350,
+    interpType="linear",
+):
     """
     This is a function that takes a csv files with fault vertices and manipulates
     the information so it can be easily input into PyNoddy
@@ -1016,11 +1103,11 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
     ProfilePitchList = []
 
     # clean the input data such that it is relative to the point of origin of the model
-    Data['X'] = Data['X'] - xy_origin[0]
-    Data['Y'] = Data['Y'] - xy_origin[1]
+    Data["X"] = Data["X"] - xy_origin[0]
+    Data["Y"] = Data["Y"] - xy_origin[1]
 
     # Get the number of input faults
-    Faults = pd.unique(Data['id'])
+    Faults = pd.unique(Data["id"])
     nFaults = len(Faults)
 
     #################################
@@ -1030,15 +1117,15 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
     for i in range(nFaults):
 
         # select the data points for each fault one at a time
-        filterV = Data['id'] == Faults[i]
+        filterV = Data["id"] == Faults[i]
 
         # get the xy points of the fault
-        xy = Data.loc[filterV, ['X', 'Y']].values
+        xy = Data.loc[filterV, ["X", "Y"]].values
 
         # get the dip direction information (you only need one value)
-        EastWest = Data.loc[filterV, ['DipDirecti']].values[0, 0]
+        EastWest = Data.loc[filterV, ["DipDirecti"]].values[0, 0]
 
-        # Perform a pca on the vertices in order to get the faults aligned on 
+        # Perform a pca on the vertices in order to get the faults aligned on
         # a major and minor axis
         pca = PCA(2)
         pca.fit(xy)
@@ -1053,7 +1140,9 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
         vectorNorth = [0, 1]
         if vectorPCA1[0] < 0:
             vectorPCA1 = vectorPCA1 * -1
-        angle = np.math.atan2(np.linalg.det([vectorPCA1, vectorNorth]), np.dot(vectorPCA1, vectorNorth))
+        angle = np.math.atan2(
+            np.linalg.det([vectorPCA1, vectorNorth]), np.dot(vectorPCA1, vectorNorth)
+        )
         angle = np.degrees(angle)
         dipdirection = angle + 90
         if dipdirection < 0:
@@ -1062,9 +1151,13 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
         # Calculate the fault length
         lengthFault = np.max(xypca[:, 0]) - np.min(xypca[:, 0])
 
-        # Get the fault center x and y        
+        # Get the fault center x and y
         means = pca.inverse_transform(
-            [(np.max(xypca[:, 0]) + np.min(xypca[:, 0])) / 2, (np.max(xypca[:, 1]) + np.min(xypca[:, 1])) / 2])
+            [
+                (np.max(xypca[:, 0]) + np.min(xypca[:, 0])) / 2,
+                (np.max(xypca[:, 1]) + np.min(xypca[:, 1])) / 2,
+            ]
+        )
         meanX = means[0]
         meanY = means[1]
 
@@ -1076,17 +1169,19 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
         targetYmax = 100
         newRangeX = targetXmax - targetXmin
         newRangeY = targetYmax - targetYmin
-        oldRangeX = (np.max(xypca[:, 0]) - np.min(xypca[:, 0]))
-        oldRangeY = (np.max(xypca[:, 1]) - np.min(xypca[:, 1]))
+        oldRangeX = np.max(xypca[:, 0]) - np.min(xypca[:, 0])
+        oldRangeY = np.max(xypca[:, 1]) - np.min(xypca[:, 1])
         xypca[:, 0] = ((xypca[:, 0] - np.min(xypca[:, 0])) / oldRangeX) * newRangeX
         # If the fault is straight, it does not need be re-calibrated in the y direction
         if oldRangeY < 0.0001:
             pass
         else:
-            xypca[:, 1] = ((xypca[:, 1] - np.min(xypca[:, 1])) / oldRangeY) * newRangeY + targetYmin
+            xypca[:, 1] = (
+                (xypca[:, 1] - np.min(xypca[:, 1])) / oldRangeY
+            ) * newRangeY + targetYmin
 
         # The trace needs to be flipped sometimes depending on the dipping direction
-        if EastWest == 'East':
+        if EastWest == "East":
             if dipdirection < 180:
                 dip = 70
             else:
@@ -1096,7 +1191,7 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
                 dip = 70
             ProfilePitch = 0
             Pitch = 90
-        elif EastWest == 'SS':
+        elif EastWest == "SS":
             if dipdirection < 180:
                 dip = 80
             else:
@@ -1119,8 +1214,8 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
         # Just to be sure, I'm re-sorting the data by x.
         # I'm not sure this is a necessary step.
         # This can most definitely be done using numpy and not pandas
-        xypcapd = pd.DataFrame({'X': xypca[:, 0], 'Y': xypca[:, 1]})
-        xypcapd = xypcapd.sort_values(['X', 'Y'], ascending='True')
+        xypcapd = pd.DataFrame({"X": xypca[:, 0], "Y": xypca[:, 1]})
+        xypcapd = xypcapd.sort_values(["X", "Y"], ascending="True")
         xypca = xypcapd.values
 
         traceXpts = xypca[:, 0]
@@ -1131,8 +1226,14 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
         minPointsFault = 2
         if RefineFault == True:
             nPointsDivide = int(
-                np.max([np.ceil(np.min([lengthFault / RefineDistance, maxPointsFault])), minPointsFault]))
-            f = interpolate.interp1d(traceXpts.copy(), traceYpts.copy(), kind='linear')
+                np.max(
+                    [
+                        np.ceil(np.min([lengthFault / RefineDistance, maxPointsFault])),
+                        minPointsFault,
+                    ]
+                )
+            )
+            f = interpolate.interp1d(traceXpts.copy(), traceYpts.copy(), kind="linear")
             traceXpts = np.linspace(0, 628, nPointsDivide)
             traceYpts = f(traceXpts)
 
@@ -1155,29 +1256,35 @@ def setUpFaultRepresentation(Data, SlipParam=0.04, xy_origin=[0, 0, 0],
 
     # Return all of the fault information in a list structure
     parametersForGeneratingFaults = {}
-    parametersForGeneratingFaults['nFaults'] = nFaults
-    parametersForGeneratingFaults['nFaultPoints'] = nFaultPointsList
-    parametersForGeneratingFaults['PtX'] = PtXList
-    parametersForGeneratingFaults['PtY'] = PtYList
-    parametersForGeneratingFaults['X'] = XList
-    parametersForGeneratingFaults['Y'] = YList
-    parametersForGeneratingFaults['Z'] = ZList
-    parametersForGeneratingFaults['XAxis'] = XAxisList
-    parametersForGeneratingFaults['YAxis'] = YAxisList
-    parametersForGeneratingFaults['ZAxis'] = ZAxisList
-    parametersForGeneratingFaults['Dip'] = DipList
-    parametersForGeneratingFaults['Dip Direction'] = DipDirectionList
-    parametersForGeneratingFaults['Slip'] = SlipList
-    parametersForGeneratingFaults['Amplitude'] = AmplitudeList
-    parametersForGeneratingFaults['Profile Pitch'] = ProfilePitchList
-    parametersForGeneratingFaults['Pitch'] = PitchList
+    parametersForGeneratingFaults["nFaults"] = nFaults
+    parametersForGeneratingFaults["nFaultPoints"] = nFaultPointsList
+    parametersForGeneratingFaults["PtX"] = PtXList
+    parametersForGeneratingFaults["PtY"] = PtYList
+    parametersForGeneratingFaults["X"] = XList
+    parametersForGeneratingFaults["Y"] = YList
+    parametersForGeneratingFaults["Z"] = ZList
+    parametersForGeneratingFaults["XAxis"] = XAxisList
+    parametersForGeneratingFaults["YAxis"] = YAxisList
+    parametersForGeneratingFaults["ZAxis"] = ZAxisList
+    parametersForGeneratingFaults["Dip"] = DipList
+    parametersForGeneratingFaults["Dip Direction"] = DipDirectionList
+    parametersForGeneratingFaults["Slip"] = SlipList
+    parametersForGeneratingFaults["Amplitude"] = AmplitudeList
+    parametersForGeneratingFaults["Profile Pitch"] = ProfilePitchList
+    parametersForGeneratingFaults["Pitch"] = PitchList
 
     return parametersForGeneratingFaults
 
 
-def createPyNoddyHistoryFile(noddyFormattedFaultData, StratDict,
-                             filename='faultmodel.his', joinType='LINES',
-                             cubesize=150, origin=[0, 0, 4000], extent=[9000, 9400, 4000]):
+def createPyNoddyHistoryFile(
+    noddyFormattedFaultData,
+    StratDict,
+    filename="faultmodel.his",
+    joinType="LINES",
+    cubesize=150,
+    origin=[0, 0, 4000],
+    extent=[9000, 9400, 4000],
+):
     """
     This is a function that created a PyNoddy history file from a dictionary
     with information regarding faults and a dictionary with information regarding
@@ -1205,14 +1312,14 @@ def createPyNoddyHistoryFile(noddyFormattedFaultData, StratDict,
     """
     import pynoddy
 
-    nFaults = noddyFormattedFaultData['nFaults']
+    nFaults = noddyFormattedFaultData["nFaults"]
     nEvents = nFaults + 1
-    nLayers = len(StratDict['Names'])
+    nLayers = len(StratDict["Names"])
 
     # Open the history file and write out the top header
     file1 = open(filename, "w")
     headerTxt = pynoddy.history._Templates().header
-    file1.write(headerTxt + '\n')
+    file1.write(headerTxt + "\n")
 
     # Write out the number of events
     numEventsText = "No of Events\t= %d\n" % nEvents
@@ -1220,60 +1327,81 @@ def createPyNoddyHistoryFile(noddyFormattedFaultData, StratDict,
 
     # Make the stratigraphy event
     # By copying a template and then replacing the key words identified by $key$
-    EventTitle = 'Event #1	= STRATIGRAPHY'
-    file1.write(EventTitle + '\n')
+    EventTitle = "Event #1	= STRATIGRAPHY"
+    file1.write(EventTitle + "\n")
     SubTitle = "	Num Layers = %d" % nLayers
-    file1.write(SubTitle + '\n')
+    file1.write(SubTitle + "\n")
     for i in range(nLayers):
         stratTxt = pynoddy.history._Templates().strati_layerExpanded
-        stratTxt = stratTxt.replace("$NAME$", StratDict['Names'][i])
+        stratTxt = stratTxt.replace("$NAME$", StratDict["Names"][i])
         stratTxt = stratTxt.replace("$RED$", str(np.random.randint(0, 255)))
         stratTxt = stratTxt.replace("$GREEN$", str(np.random.randint(0, 255)))
         stratTxt = stratTxt.replace("$BLUE$", str(np.random.randint(0, 255)))
-        stratTxt = stratTxt.replace("$Height$", "{:.5f}".format(StratDict['Heights'][i]))
-        stratTxt = stratTxt.replace("$Density$", "{:.5f}".format(StratDict['Density'][i]))
-        stratTxt = stratTxt.replace("$MagSus$", "{:.5f}".format(StratDict['MagSus'][i]))
-        file1.write(stratTxt + '\n')
+        stratTxt = stratTxt.replace(
+            "$Height$", "{:.5f}".format(StratDict["Heights"][i])
+        )
+        stratTxt = stratTxt.replace(
+            "$Density$", "{:.5f}".format(StratDict["Density"][i])
+        )
+        stratTxt = stratTxt.replace("$MagSus$", "{:.5f}".format(StratDict["MagSus"][i]))
+        file1.write(stratTxt + "\n")
     file1.write("	Name	= Strat\n")
 
     # Make an event for each fault
-    FaultProperties = ['X', 'Y', 'Z', 'Dip Direction',
-                       'Dip', 'Slip', 'Amplitude', 'XAxis', 'YAxis',
-                       'ZAxis', 'Profile Pitch', 'Pitch']
+    FaultProperties = [
+        "X",
+        "Y",
+        "Z",
+        "Dip Direction",
+        "Dip",
+        "Slip",
+        "Amplitude",
+        "XAxis",
+        "YAxis",
+        "ZAxis",
+        "Profile Pitch",
+        "Pitch",
+    ]
 
     for i in range(nFaults):
-        nPoints = noddyFormattedFaultData['nFaultPoints'][i]
-        EventTitle = 'Event #%d	= FAULT' % (i + 2)
-        file1.write(EventTitle + '\n')
+        nPoints = noddyFormattedFaultData["nFaultPoints"][i]
+        EventTitle = "Event #%d	= FAULT" % (i + 2)
+        file1.write(EventTitle + "\n")
 
         # start
         faultTxt = pynoddy.history._Templates().fault_start
         for prop in FaultProperties:
-            faultTxt = faultTxt.replace("$" + prop + "$", "{:.5f}".format(noddyFormattedFaultData[prop][i]))
-        faultTxt = faultTxt.replace('$Join Type$', joinType)
-        file1.write(faultTxt + '\n')
+            faultTxt = faultTxt.replace(
+                "$" + prop + "$", "{:.5f}".format(noddyFormattedFaultData[prop][i])
+            )
+        faultTxt = faultTxt.replace("$Join Type$", joinType)
+        file1.write(faultTxt + "\n")
 
         # middle --> add the fault trace information
         faultPointTxt = "    Num Points    = %d" % nPoints
-        file1.write(faultPointTxt + '\n')
+        file1.write(faultPointTxt + "\n")
         for p in range(nPoints):
-            ptX = " 		Point X = " + "{:.5f}".format(noddyFormattedFaultData['PtX'][i][p])
-            file1.write(ptX + '\n')
-            ptY = " 		Point Y = " + "{:.5f}".format(noddyFormattedFaultData['PtY'][i][p])
-            file1.write(ptY + '\n')
+            ptX = " 		Point X = " + "{:.5f}".format(
+                noddyFormattedFaultData["PtX"][i][p]
+            )
+            file1.write(ptX + "\n")
+            ptY = " 		Point Y = " + "{:.5f}".format(
+                noddyFormattedFaultData["PtY"][i][p]
+            )
+            file1.write(ptY + "\n")
 
             # end
         faultTxt = pynoddy.history._Templates().fault_end
-        faultTxt = faultTxt.replace("$NAME$", 'Fault' + str(i))
-        file1.write(faultTxt + '\n')
+        faultTxt = faultTxt.replace("$NAME$", "Fault" + str(i))
+        file1.write(faultTxt + "\n")
 
         # replace the origin information
     footerTxt = pynoddy.history._Templates().footer_expanded
-    footerTxt = footerTxt.replace('$origin_z$', str(origin[2]))
-    footerTxt = footerTxt.replace('$extent_x$', str(extent[0]))
-    footerTxt = footerTxt.replace('$extent_y$', str(extent[1]))
-    footerTxt = footerTxt.replace('$extent_z$', str(extent[2]))
-    footerTxt = footerTxt.replace('$cube_size$', str(cubesize))
+    footerTxt = footerTxt.replace("$origin_z$", str(origin[2]))
+    footerTxt = footerTxt.replace("$extent_x$", str(extent[0]))
+    footerTxt = footerTxt.replace("$extent_y$", str(extent[1]))
+    footerTxt = footerTxt.replace("$extent_z$", str(extent[2]))
+    footerTxt = footerTxt.replace("$cube_size$", str(cubesize))
     file1.write(footerTxt)
 
     file1.close()
@@ -1282,6 +1410,7 @@ def createPyNoddyHistoryFile(noddyFormattedFaultData, StratDict,
 # ===============================================================================
 # Templates for Noddy history file
 # ===============================================================================
+
 
 class _Templates:
     header = """#Filename = simple_two_faults.his
@@ -1580,7 +1709,7 @@ Version = 7.03"""
         Point X    = 628
         Point Y    = 0
     Surface Type    = FLAT_SURFACE
-    Surface Filename    =      
+    Surface Filename    =
     Surface Directory    = \\psf\Home
     Surface XDim    = 0.000000
     Surface YDim    = 0.000000
@@ -1880,7 +2009,7 @@ Version = 7.03"""
         Point X    = 628
         Point Y    = 0
     Surface Type    = FLAT_SURFACE
-    Surface Filename    =      
+    Surface Filename    =
     Surface Directory    = \\psf\Home
     Surface XDim    = 0.000000
     Surface YDim    = 0.000000
@@ -1993,7 +2122,7 @@ Version = 7.03"""
     Dip    =   $DIP$
     Alteration Type     = NONE
     Num Profiles    = 1
-    Name    =    
+    Name    =
     Type    = 0
     Join Type     = LINES
     Graph Length    = 0.000000
@@ -2006,7 +2135,7 @@ Version = 7.03"""
     Max Y Replace    = 0.000000
     Num Points    = 0
     Surface Type    = FLAT_SURFACE
-    Surface Filename    =       
+    Surface Filename    =
     Surface Directory    = /tmp_mnt/sci6/users/mark/Atlas/case
     Surface XDim    = 0.000000
     Surface YDim    = 0.000000
@@ -2085,7 +2214,7 @@ Version = 7.03"""
     SectionLength    = 10000.00
     SectionHeight    = 5000.00
     topofile    = FALSE
-    Topo Filename    =    
+    Topo Filename    =
     Topo Directory    = .
     Topo Scale    =   1.00
     Topo Offset    =   0.00
@@ -2147,7 +2276,7 @@ Version = 7.03"""
     Background Green Component    = 254
     Background Blue Component    = 254
     Internet Address    = 255.255.255.255
-    Account Name    =       
+    Account Name    =
     Noddy Path    = ./noddy
     Help Path    = iexplore %h
     Movie Frames Per Event    = 3
@@ -2300,7 +2429,7 @@ End of Status Report"""
     SectionLength    = 10000.00
     SectionHeight    = 5000.00
     topofile    = FALSE
-    Topo Filename    =    
+    Topo Filename    =
     Topo Directory    = .
     Topo Scale    =   1.00
     Topo Offset    =   0.00
@@ -2362,7 +2491,7 @@ End of Status Report"""
     Background Green Component    = 254
     Background Blue Component    = 254
     Internet Address    = 255.255.255.255
-    Account Name    =       
+    Account Name    =
     Noddy Path    = ./noddy
     Help Path    = iexplore %h
     Movie Frames Per Event    = 3
@@ -2483,14 +2612,14 @@ End of Status Report"""
 End of Status Report"""
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # some testing and debugging:
     import os
 
-    os.chdir(r'C:\Users\Sam\OneDrive\Documents\Masters\Models\Mt Painter')
+    os.chdir(r"C:\Users\Sam\OneDrive\Documents\Masters\Models\Mt Painter")
     H1 = NoddyHistory("mt_pa_simplified.his")
     H1.swap_events(2, 3)
     H1.write_history("test")
     H2 = NoddyHistory("test")
-    H2.events[10].properties['Radius'] = 2000
+    H2.events[10].properties["Radius"] = 2000
     H2.write_history("test2")
