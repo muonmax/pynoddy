@@ -34,7 +34,9 @@ class NoddyHistory(object):
         file is opened!
         """
 
-        vb = kwds.get('verbose', False)
+        vb = kwds.get("verbose", False)
+
+        self.event_counter = 0
 
         if history is None:
             if "url" in kwds:
