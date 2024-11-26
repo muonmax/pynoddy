@@ -896,16 +896,16 @@ def convertSurfaces2VTK(points, cell_data, faceCounter, outputOption=1,
 
     ## if you would like a single vtk file
     if (outputOption == 0):
-        cells = np.zeros((num3Dfaces, 3), dtype='int')
+        cells = np.zeros((num3Dfaces-1, 3), dtype='int')
         i = 0
-        for f in range(num3Dfaces):
+        for f in range(num3Dfaces-1):
             cells[f, :] = [i, i + 1, i + 2]
             i = i + 3
         meshio.write_points_cells(
             "Model.vtk",
             points,
             cells={'triangle': cells},
-            cell_data={'triangle': CatCodes}
+            cell_data={'triangle': [CatCodes]}
         )
 
     ## option 1: make a separate file for each surface
