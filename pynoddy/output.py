@@ -2462,17 +2462,17 @@ class NoddyTopology(object):
             fig.show()
 
 
-if __name__ == '__main__':
-    # some testing and debugging functions...
-    #     os.chdir(r'/Users/Florian/git/pynoddy/sandbox')
-    #     NO = NoddyOutput("strike_slip_out")
-    # os.chdir(r'C:\Users\Sam\Documents\Temporary Model Files')
-    os.chdir(r'C:\Users\Sam\OneDrive\Documents\Masters\Models\Primitive\Fold+Unconformity+Intrusion+Fault')
-    import pickle as pk
+# if __name__ == '__main__':
+#     # some testing and debugging functions...
+#     #     os.chdir(r'/Users/Florian/git/pynoddy/sandbox')
+#     #     NO = NoddyOutput("strike_slip_out")
+#     # os.chdir(r'C:\Users\Sam\Documents\Temporary Model Files')
+#     os.chdir(r'C:\Users\Sam\OneDrive\Documents\Masters\Models\Primitive\Fold+Unconformity+Intrusion+Fault')
+#     import pickle as pk
 
-    st = pk.load(open('super_topology.pkl'))
+#     st = pk.load(open('super_topology.pkl'))
 
-    NoddyTopology.draw_mayavi_graph(st)
+#     NoddyTopology.draw_mayavi_graph(st)
 
     # NO = "NFault/NFault"
     # NO = 'Fold/Fold_Fault/fold_fault'

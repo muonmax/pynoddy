@@ -581,6 +581,11 @@ class NoddyHistory(object):
             ev = self._create_fold(event_options)
             ev.event_type = "FOLD"
 
+        elif event_type == 'plug':
+            ev = self._create_plug(event_options)
+            ev.event_type = 'PLUG'
+
+
         else:
             raise NameError("Event type %s not (yet) implemented" % event_type)
 
@@ -914,6 +919,64 @@ Version = 7.03
 
         # append event name
         tmp_lines.append("""\tName\t= %s""" % event_options.get("name", "Unconf"))
+
+        tmp_lines_list = []
+        for line in tmp_lines:
+            tmp_lines_list.append(line + "\n")
+        ev.set_event_lines(tmp_lines_list)
+        return ev
+
+    def _create_plug(self, event_options):
+        """Create a plug event.
+
+        Args:
+        event_options: list : list of required and optional settings for event;
+
+        Options are:
+        name (str): name of plug event
+        geometry (str): geometry of plug (one of 'Cylindrical', 'Cone')
+        pos (tuple): position of reference point as (x, y, z) floats
+        dip_dir (float): dip direction of plug [0, 360]
+        dip (float): dip angle of plug [0, 90]
+        plug_size (int): the radius of the plug in meters, can be used to calculate the angle of a cylindrical plug
+        angle (float): the angle of the cone in degrees for a cone plug
+        """
+
+        ev = events.Plug()
+        height = self.get_extent()[2]
+        tmp_lines = [""]
+        plug_lines = _Templates.plug
+
+        # Verify correct options are present for plug geometry
+        if event_options["geometry"] == "Cylindrical":
+            if "radius" not in event_options:
+                raise ValueError("Radius must be specified for cylindrical plug geometry.")
+            if "angle" in event_options:
+                raise ValueError("Angle is a Cone geometry parameter, not Cylindrical.")
+        elif event_options["geometry"] == "Cone":
+            if "angle" not in event_options:
+                raise ValueError("Angle must be specified for cone plug geometry.")
+            if "radius" in event_options:
+                raise ValueError("Radius is a Cylindrical geometry parameter, not Cone.")
+
+        # substitute text with according values
+        plug_lines = plug_lines.replace("$NAME$", event_options["name"])
+        plug_lines = plug_lines.replace("$POS_X$", "%.1f" % event_options["pos"][0])
+        plug_lines = plug_lines.replace("$POS_Y$", "%.1f" % event_options["pos"][1])
+        plug_lines = plug_lines.replace("$POS_Z$", "%.1f" % event_options["pos"][2])
+        plug_lines = plug_lines.replace("$DIP_DIR$", "%.1f" % event_options["dip_dir"])
+        plug_lines = plug_lines.replace("$DIP$", "%.1f" % event_options["dip"])
+        plug_lines = plug_lines.replace("$HEIGHT$", "%.1f" % height)
+        if event_options["geometry"] == "Cylindrical":
+            plug_lines = plug_lines.replace("$GEOMETRY$", "Cylindrical")
+            plug_lines = plug_lines.replace("$RADIUS$", "%.1f" % event_options["radius"])
+        elif event_options["geometry"] == "Cone":
+            plug_lines = plug_lines.replace("$GEOMETRY$", "Cone")
+            plug_lines = plug_lines.replace("$ANGLE$", "%.1f" % event_options["angle"])
+
+        # split lines and add to event lines list:
+        for plug_line in plug_lines.split("\n"):
+            tmp_lines.append(plug_line)
 
         tmp_lines_list = []
         for line in tmp_lines:
@@ -2185,6 +2248,235 @@ Version = 7.03"""
     Green    = 117
     Blue    = 0
     Name    = $NAME$"""
+
+    plug = """	Type	= $GEOMETRY$
+	Merge Events	= 0
+	X	= $POS_X$
+	Y	= $POS_Y$
+	Z	= $POS_Z$
+	Dip Direction	=  $DIP_DIR$
+	Dip	=  $DIP$
+	Pitch	 =   0.00
+	Radius	 = $RADIUS$
+	ApicalAngle	 =  30.00
+	B-value	 = 2000.00
+	A-value	 = 1000.00
+	B-value	 = 1000.00
+	C-value	 = 1000.00
+	Alteration Type 	= NONE
+	Num Profiles	= 12
+	Name	= Density
+	Type	= 2
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= 0.000000
+	Max Y Scale	= 4.000000
+	Scale Origin	= 1.000000
+	Min Y Replace	= 0.000000
+	Max Y Replace	= 10.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= -50
+		Point X	= 628
+		Point Y	= -50
+	Name	= Anisotropy
+	Type	= 3
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -10.000000
+	Max Y Scale	= 10.000000
+	Scale Origin	= 0.000000
+	Min Y Replace	= -10.000000
+	Max Y Replace	= 10.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - X Axis (Sus)
+	Type	= 4
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -5.000000
+	Max Y Scale	= 5.000000
+	Scale Origin	= 0.000000
+	Min Y Replace	= 2.000000
+	Max Y Replace	= 8.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - Y Axis (Sus)
+	Type	= 5
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -5.000000
+	Max Y Scale	= 5.000000
+	Scale Origin	= 0.000000
+	Min Y Replace	= 2.000000
+	Max Y Replace	= 8.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - Z Axis (Sus)
+	Type	= 6
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -5.000000
+	Max Y Scale	= 5.000000
+	Scale Origin	= 0.000000
+	Min Y Replace	= 2.000000
+	Max Y Replace	= 8.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - Dip (Sus)
+	Type	= 7
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -180.000000
+	Max Y Scale	= 180.000000
+	Scale Origin	= 1.000000
+	Min Y Replace	= -180.000000
+	Max Y Replace	= 180.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 1
+		Point X	= 628
+		Point Y	= 1
+	Name	= - Dip Dir (Sus)
+	Type	= 8
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -360.000000
+	Max Y Scale	= 360.000000
+	Scale Origin	= 1.000000
+	Min Y Replace	= -360.000000
+	Max Y Replace	= 360.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - Pitch (Sus)
+	Type	= 9
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -360.000000
+	Max Y Scale	= 360.000000
+	Scale Origin	= 1.000000
+	Min Y Replace	= -360.000000
+	Max Y Replace	= 360.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= Remanence
+	Type	= 10
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -10.000000
+	Max Y Scale	= 10.000000
+	Scale Origin	= 0.000000
+	Min Y Replace	= -10.000000
+	Max Y Replace	= 10.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - Declination (Rem)
+	Type	= 11
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -360.000000
+	Max Y Scale	= 360.000000
+	Scale Origin	= 1.000000
+	Min Y Replace	= -360.000000
+	Max Y Replace	= 360.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - Inclination (Rem)
+	Type	= 12
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -360.000000
+	Max Y Scale	= 360.000000
+	Scale Origin	= 1.000000
+	Min Y Replace	= -360.000000
+	Max Y Replace	= 360.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Name	= - Intensity (Rem)
+	Type	= 13
+	Join Type 	= LINES
+	Graph Length	= 200.000000
+	Min X	= 0.000000
+	Max X	= 0.000000
+	Min Y Scale	= -5.000000
+	Max Y Scale	= 5.000000
+	Scale Origin	= 0.000000
+	Min Y Replace	= -5.000000
+	Max Y Replace	= 5.000000
+	Num Points	= 2
+		Point X	= 0
+		Point Y	= 0
+		Point X	= 628
+		Point Y	= 0
+	Unit Name	= Gabbro
+	Height	= 5500
+	Apply Alterations	= ON
+	Density	= 5.00e+000
+	Anisotropic Field	= 0
+	MagSusX	= 1.00e-002
+	MagSusY	= 1.00e-002
+	MagSusZ	= 1.00e-002
+	MagSus Dip	= 9.00e+001
+	MagSus DipDir	= 9.00e+001
+	MagSus Pitch	= 0.00e+000
+	Remanent Magnetization	= 0
+	Inclination	=  30.00
+	Angle with the Magn. North	=  30.00
+	Strength	= 1.00e-002
+	Color Name	= Color 28
+	Red	= 216
+	Green	= 255
+	Blue	= 0
+	Name	= $NAME$"""
 
     footer_expanded = """
 #BlockOptions
